@@ -39,3 +39,16 @@ class ExpenseTest(TestCase):
         self.assertEqual(expense.amount, json_resp[0]["amount"])
         self.assertEqual(expense.merchant, json_resp[0]["merchant"])
         self.assertEqual(expense.description, json_resp[0]["description"])
+
+    def test_retrieve_expense(self):
+        expense = ExpenseFactory()
+
+        url = reverse("expense_api:expense-retrieve-update-destroy", args=[expense.id])
+
+        res = self.client.get(url, format="json")
+        json_resp = res.json()
+
+        self.assertEqual(status.HTTP_200_OK, res.status_code)
+        self.assertEqual(expense.amount, json_resp["amount"])
+        self.assertEqual(expense.merchant, json_resp["merchant"])
+        self.assertEqual(expense.description, json_resp["description"])
