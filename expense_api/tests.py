@@ -63,3 +63,35 @@ class ExpenseTest(TestCase):
 
         self.assertEqual(status.HTTP_204_NO_CONTENT, res.status_code)
         self.assertFalse(Expense.objects.filter(id=expense.id))
+
+    def test_update_expense(self):
+        expense = ExpenseFactory()
+
+        url = reverse("expense_api:expense-retrieve-update-destroy", args=[expense.id])
+        payload = {
+            "amount": 60.0,
+            "merchant": "Amazon",
+            "description": "Django Rest Framework",
+        }
+
+        res = self.client.put(url, payload, format="json")
+
+        updated_expense = Expense.objects.get(id=expense.id)
+
+        self.assertEqual(status.HTTP_200_OK, res.status_code)
+        self.assertEqual(updated_expense.amount, payload["amount"])
+        self.assertEqual(updated_expense.merchant, payload["merchant"])
+        self.assertEqual(updated_expense.description, payload["description"])
+
+    def test_unsuccessful_expense_update(self):
+        expense = ExpenseFactory()
+
+        url = reverse("expense_api:expense-retrieve-update-destroy", args=[expense.id])
+        payload = {}
+
+        res = self.client.put(url, payload, format="json")
+        json_resp = res.json()
+
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
+        self.assertEqual(json_resp["amount"], ["This field is required."])
+        self.assertEqual(json_resp["merchant"], ["This field is required."])
