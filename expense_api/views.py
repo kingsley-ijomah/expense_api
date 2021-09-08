@@ -26,3 +26,9 @@ class ExpenseRetrieveUpdateDestroyView(APIView):
         expense = get_object_or_404(Expense, pk=pk)
         serializer = ExpenseSerializer(expense, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk):
+        expense = get_object_or_404(Expense, id=pk)
+        expense.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+

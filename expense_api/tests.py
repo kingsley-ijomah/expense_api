@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from .factories import ExpenseFactory
+from .models import Expense
 
 
 class ExpenseTest(TestCase):
@@ -52,3 +53,13 @@ class ExpenseTest(TestCase):
         self.assertEqual(expense.amount, json_resp["amount"])
         self.assertEqual(expense.merchant, json_resp["merchant"])
         self.assertEqual(expense.description, json_resp["description"])
+
+    def test_delete_expense(self):
+        expense = ExpenseFactory()
+
+        url = reverse("expense_api:expense-retrieve-update-destroy", args=[expense.id])
+
+        res = self.client.delete(url, format="json")
+
+        self.assertEqual(status.HTTP_204_NO_CONTENT, res.status_code)
+        self.assertFalse(Expense.objects.filter(id=expense.id))
