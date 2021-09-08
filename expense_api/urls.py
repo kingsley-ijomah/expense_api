@@ -1,3 +1,7 @@
 from django.urls import path
 
-urlpatterns = []
+from . import views
+
+urlpatterns = [
+    path("expenses/", views.ExpenseListCreateView.as_view(), name="expense-list-create")
+]
