@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
+from rest_framework_api_key.models import APIKey
 
 from .factories import ExpenseFactory
 from .models import Expense
@@ -10,6 +11,8 @@ from .models import Expense
 class ExpenseTest(TestCase):
     def setUp(self):
         self.client = APIClient()
+        api_key, key = APIKey.objects.create_key(name="expense-service")
+        self.client.credentials(HTTP_AUTHORIZATION=f"Api-Key {key}")
 
     def test_create_expense(self):
         url = reverse("expense_api:expense-list-create")
