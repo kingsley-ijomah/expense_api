@@ -12,6 +12,9 @@ from .models import Expense
 class ExpenseTest(TestCase):
     def setUp(self):
         self.client = APIClient()
+        self.user = UserFactory(password="password123")
+        payload = {"username": self.user.username, "password": "password123"}
+        self.client.post(reverse("expense_api:session-create"), payload, format="json")
 
     def test_create_expense(self):
         url = reverse("expense_api:expense-list-create")
