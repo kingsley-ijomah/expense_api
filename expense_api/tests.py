@@ -1,3 +1,4 @@
+import jwt
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
@@ -95,3 +96,29 @@ class ExpenseTest(TestCase):
         self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
         self.assertEqual(json_resp["amount"], ["This field is required."])
         self.assertEqual(json_resp["merchant"], ["This field is required."])
+
+
+class RegisterTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("expense_api:registration-create")
+
+    def test_registration(self):
+        payload = {
+            "first_name": "Obi",
+            "last_name": "Ade",
+            "email": "obi@email.com",
+            "password": "pass123",
+            "username": "obi123",
+        }
+        res = self.client.post(self.url, payload, format="json")
+        json_resp = res.json()
+
+        self.assertEqual(status.HTTP_201_CREATED, res.status_code)
+        self.assertEqual(json_resp["first_name"], payload["first_name"])
+        self.assertEqual(json_resp["last_name"], payload["last_name"])
+        self.assertEqual(json_resp["email"], payload["email"])
+        self.assertEqual(json_resp["username"], payload["username"])
+        # password is not sent back with response
+        with self.assertRaises(KeyError):
+            json_resp["password"]
