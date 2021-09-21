@@ -59,3 +59,10 @@ class SessionRetrieveDestroyView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response({"data": serializer.data})
+
+    def delete(self, request):
+        response = Response()
+        response.delete_cookie(key="jwt")
+        response.data = {"message": "Logged out"}
+
+        return response
