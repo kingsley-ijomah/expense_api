@@ -1,10 +1,11 @@
 import jwt
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from .factories import ExpenseFactory
+from .factories import ExpenseFactory, UserFactory
 from .models import Expense
 
 
@@ -122,3 +123,24 @@ class RegisterTest(TestCase):
         # password is not sent back with response
         with self.assertRaises(KeyError):
             json_resp["password"]
+
+
+class SessionCreateTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("expense_api:session-create")
+        self.user = UserFactory(password="password123")
+
+    def test_create_session(self):
+        # we have to use a non-hashed version of passord
+        payload = {"username": self.user.username, "password": "password123"}
+
+        res = self.client.post(self.url, payload, format="json")
+
+        decoded_token = jwt.decode(
+            res.data["jwt"], settings.SECRET_KEY, algorithms=["HS256"]
+        )
+
+        self.assertEqual(status.HTTP_200_OK, res.status_code)
+        self.assertTrue("jwt" in res.data)
+        self.assertEqual(self.user.id, decoded_token["user_id"])
